@@ -1,0 +1,20 @@
+{
+    "name": "isengine/frameworkjs",
+    "type": "project",
+    "description": "isEngine framework on JavaScript",
+    "version": "1.0.0-alpha",
+    "keywords": [ "php", "cms", "framework", "isengine", "js" ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Max Nikonov",
+            "email": "mail@isengine.org"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php" : "^5.6|^7.0|^8.0"
+    },
+    "autoload": {
+    }
+}
