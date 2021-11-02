@@ -10,7 +10,9 @@ if (!defined('isENGINE')) { define('isENGINE', microtime(true)); }
 if (!defined('DS')) { define('DS', DIRECTORY_SEPARATOR); }
 if (!defined('DP')) { define('DP', '..' . DIRECTORY_SEPARATOR); }
 if (!defined('DI')) { define('DI', realpath($_SERVER['DOCUMENT_ROOT']) . DS); }
-if (!defined('DR')) { define('DR', realpath(__DIR__ . DS . DP . DP . DP . DP) . DS); }
+if (!defined('DR')) { define('DR', realpath(__DIR__ . DS . DP . DP . DP) . DS); }
+
+if (!defined('isPATH')) { define('isPATH', ''); }
 
 // Подключение элементов
 
@@ -39,10 +41,6 @@ function jsSearch($path, &$time) {
 		$item = $path . $item;
 		if (is_dir($item)) {
 			$dir[] = $item;
-			//$sub = \is\jsSearch($item . DS, $time);
-			//if (is_array($sub)) {
-			//	$list = array_merge($list, $sub);
-			//}
 		} else {
 			if (mb_substr($item, -3) === '.js') {
 				$list[] = $item;
@@ -71,7 +69,7 @@ $time = null;
 $path = __DIR__ . DS;
 $list = \is\jsSearch($path, $time);
 
-$file = 'frameworkjs.js';
+$file = (isPATH ? str_replace([':', '/', '\\'], DS, isPATH) : null) . 'frameworkjs.js';
 $mtime = file_exists(DI . $file) ? filemtime(DI . $file) : null;
 
 if ($mtime <= $time) {
@@ -85,4 +83,4 @@ if ($mtime <= $time) {
 }
 
 ?>
-<script src="<?= '//' . $_SERVER['HTTP_HOST'] . '/' . $file . '?' . $mtime; ?>"></script>
+<script src="<?= '//' . $_SERVER['HTTP_HOST'] . '/' . str_replace([':', '/', '\\'], '/', $file) . '?' . $mtime; ?>"></script>
