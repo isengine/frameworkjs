@@ -2,7 +2,7 @@
 is.Helpers.Sessions = class {
 
 	static setCookie(name, set) {
-		document.cookie = encodeURIComponent(name) + "=" + encodeURIComponent(value) + "; path=/";
+		document.cookie = encodeURIComponent(name) + "=" + encodeURIComponent(set) + "; path=/";
 	}
 
 	static getCookie(name = null){
@@ -25,7 +25,7 @@ is.Helpers.Sessions = class {
 	}
 
 	static unCookie(name) {
-		document.cookie = encodeURIComponent(name) + "=; max-age=0";
+		document.cookie = encodeURIComponent(name) + "=; path=/; max-age=0";
 	}
 
 }

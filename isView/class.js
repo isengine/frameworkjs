@@ -11,7 +11,8 @@ class isView {
 			
 			let items = {};
 			
-			$("[is-parent]").each(function(){
+			$("[is-parent]").each(function(i){
+				//console.log(i);
 				let name = $(this).attr("is-parent");
 				if (!items[name]) {
 					items[name] = new isView(name);
@@ -27,6 +28,7 @@ class isView {
 		//this._items = $("[is-parent" + (name !== null ? "=\"" + name + "\"" : "") + "]");
 		this._items = $("[is-parent=\"" + name + "\"]");
 		
+		//console.log(this._items);
 		// заполняем объект данных со всех родителей
 		
 		let data = {};
