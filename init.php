@@ -12,7 +12,7 @@ if (!defined('DP')) { define('DP', '..' . DIRECTORY_SEPARATOR); }
 if (!defined('DI')) { define('DI', realpath($_SERVER['DOCUMENT_ROOT']) . DS); }
 if (!defined('DR')) { define('DR', realpath(__DIR__ . DS . DP . DP . DP) . DS); }
 
-if (!defined('isPATH')) { define('isPATH', ''); }
+if (!defined('isOPTIONS')) { define('isOPTIONS', ''); }
 
 // Подключение элементов
 
@@ -66,21 +66,43 @@ function jsSearch($path, &$time) {
 	
 }
 
+$options = isOPTIONS ? json_decode(isOPTIONS, true) : [];
+
 $time = null;
 $path = __DIR__ . DS;
 $list = \is\jsSearch($path, $time);
 
-$file = (isPATH ? str_replace([':', '/', '\\'], DS, isPATH) : null) . 'frameworkjs.js';
+$file = ($options['path'] ? str_replace([':', '/', '\\'], DS, $options['path']) : null) . 'frameworkjs' . ($options['min'] ? '.min' : null) . '.js';
 $mtime = file_exists(DI . $file) ? filemtime(DI . $file) : null;
 
 if ($mtime <= $time) {
 	$content = null;
+	$min = null;
 	foreach ($list as $item) {
-		$content .= file_get_contents($item) . "\n";
+		$content .= file_get_contents($item) . ($options['min'] ? ';' : null) . "\n";
 	}
 	unset($item);
+	
+	if ($options['min']) {
+		// clear comments [//...]
+		$content = preg_replace('/([^\:\"\'])\s*?\/\/.*?($|[\r\n])/u', '$1$2', $content);
+		// clear line breaks
+		$content = preg_replace('/\r\n\s*|\r\s*|\n\s*/u', '', $content);
+		// clear comments [/*...*/]
+		$content = preg_replace('/\/\*.*?\*\//u', '', $content);
+		// clear multiple spaces and trim
+		$content = preg_replace('/\s/ui', ' ', $content);
+		$content = preg_replace('/(\s|&nbsp;)+/ui', '$1', $content);
+		$content = preg_replace('/^(\s|(&nbsp;))+/ui', '', $content);
+		$content = preg_replace('/(\s|(&nbsp;))+$/ui', '', $content);
+		$content = preg_replace('/(; )+/ui', '$1', $content);
+		// clear spaces around signs
+		$content = preg_replace('/\s*([\<\>\=\+\-\*\/\?\:\.\,\(\)\|\&\!\{\}]+)\s*/ui', '$1', $content);
+	}
+	
 	file_put_contents(DI . $file, $content);
 	$mtime = filemtime(DI . $file);
+	unset($content);
 }
 
 ?>
