@@ -35,7 +35,8 @@ function jsSearch($path, &$time) {
 	$dir = [];
 	
 	foreach ($scan as $item) {
-		if ($item === '.' || $item === '..') {
+		//if ($item === '.' || $item === '..') {
+		if (mb_substr($item, 0, 1) === '.') {
 			continue;
 		}
 		$item = $path . $item;
