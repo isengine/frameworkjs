@@ -1,7 +1,7 @@
 
 class isView {
 	
-	constructor(name = null) {
+	constructor(name = null, selector = null) {
 		
 		// задаем свойства
 		
@@ -11,9 +11,9 @@ class isView {
 			
 			let items = {};
 			
-			$("[is-parent]").each(function(i){
+			$("[is-name]").each(function(i){
 				//console.log(i);
-				let name = $(this).attr("is-parent");
+				let name = $(this).attr("is-name");
 				if (!items[name]) {
 					items[name] = new isView(name);
 				}
@@ -25,10 +25,23 @@ class isView {
 		}
 		
 		this._data = {};
-		//this._items = $("[is-parent" + (name !== null ? "=\"" + name + "\"" : "") + "]");
-		this._items = $("[is-parent=\"" + name + "\"]");
+		//this._items = $("[is-name" + (name !== null ? "=\"" + name + "\"" : "") + "]");
 		
-		//console.log(this._items);
+		if (selector === null) {
+			this._items = $("[is-name=\"" + name + "\"]");
+			this._name = name;
+		} else if (typeof(selector) === "object") {
+			this._items = $(selector);
+			this._name = $(selector).attr("is-name");
+		} else {
+			$(selector).attr("is-name", name);
+			this._name = $(selector);
+			this._name = name;
+		}
+		
+		//console.log("i", this.items);
+		//console.log("_i", this._items);
+		
 		// заполняем объект данных со всех родителей
 		
 		let data = {};
@@ -44,22 +57,31 @@ class isView {
 			
 			if ($(this).is("[is-data]")) {
 				let name = $(this).attr("is-data");
-				let value = $(this).val();
-				if (!value && value !== 0) {
-					value = $(this).html().trim();
-				}
-				data[name] = value;
+				
+				let separator = name.indexOf(":");
+				data[name] = separator && separator > 0 ? $(this).attr( name.substring(separator + 1) ) : $(this).html().trim();
+				
+				//let value = $(this).val();
+				//if (!value && value !== 0) {
+				//	value = $(this).html().trim();
+				//}
+				//data[name] = value;
 			}
 			
 			// вложенные данные
 			
 			$(this).find("[is-data]").each(function(){
 				let name = $(this).attr("is-data");
-				let value = $(this).val();
-				if (!value && value !== 0) {
-					value = $(this).html().trim();
-				}
-				data[name] = value;
+				
+				let separator = name.indexOf(":");
+				data[name] = separator && separator > 0 ? $(this).attr( name.substring(separator + 1) ) : $(this).html().trim();
+				
+				//let value = $(this).val();
+				//if (!value && value !== 0) {
+				//	value = $(this).html().trim();
+				//}
+				//data[name] = value;
+				
 			});
 			
 			// данные из атрибутов у родителя
@@ -90,6 +112,10 @@ class isView {
 		
 		//console.log(this._data);
 		
+	}
+	
+	name() {
+		return this._name;
 	}
 	
 	data(name = null, value = null) {
@@ -130,15 +156,11 @@ class isView {
 		
 		// задать событие
 		
-		let selector = "[is-action=\"" + name + "\"]";
+		//let selector = "[is-action=\"" + name + "\"]";
+		let selector = "[is-name=\"" + this.name() + "\"] [is-action=\"" + name + "\"]";
 		
-		//$("body " + selector).each(function(){
-		//this._items.find(selector).each(function(){
-		//$("body").find(this._items).find(selector).each(function(){
-		//	$(this).on(type, callback);
-		//});
-		
-		$("body").find(this._items).find(selector).on(type, callback);
+		//$("body").find(this._items).on(type, selector, callback);
+		$("body").on(type, selector, callback);
 		
 	}
 	
@@ -161,19 +183,69 @@ class isView {
 		
 		obj._items.each(function(){
 			$(this).find(selector).each(function(){
-				if ($(this).is("[value]")) {
-					$(this).val(value);
-					$(this).attr("value", value);
+				
+				let separator = name.indexOf(":");
+				if (separator && separator > 0) {
+					let a = name.substring(separator + 1);
+					$(this).attr(a, value);
+					if (a === "value") {
+						$(this).val(value);
+					} else if (a.indexOf("data-") === 0) {
+						$(this).data(a.substring(5), value);
+					}
 				} else {
 					$(this).html(value);
 				}
+				
+				//if ($(this).is("[value]")) {
+				//	$(this).val(value);
+				//	$(this).attr("value", value);
+				//} else {
+				//	$(this).html(value);
+				//}
+				
 			});
 		});
 		
 	}
 	
-	say() {
-		//alert(this.name ? this.name : "asdf");
+	clone(name, from, to = null, method = null) {
+		
+		/*
+		*  name - имя-идентификатор родителя
+		*  from - селектор объекта, который берется для клонирования
+		*  to - селектор контейнера, внутрь которого будет вставлен объект
+		*    если не объявлен, то объект будет не вставлен, а возвращен
+		*  method - метод, по которому добавляется объект:
+		*    append - в конец (по-умолчанию)
+		*    prepend - в начало
+		*/
+		
+		let n = new isView(name, $(from).first().clone());
+		n._items.attr("is-name", name);
+		n._data = this._data;
+		n.refresh();
+		
+		let items = this._items;
+		n._items.each(function(){
+			items.push(this);
+		});
+		
+		if (to === null) {
+			return n._items;
+		}
+		
+		if (method === "prepend") {
+			n._items.prependTo($(to));
+		} else {
+			n._items.appendTo($(to));
+		}
+		
+		//console.log("*this", this);
+		//console.log("*c", c);
+		//console.log("*c-html", c.html());
+		//console.log("*n", n);
+		
 	}
 	
 }
