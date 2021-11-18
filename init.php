@@ -16,6 +16,15 @@ if (!defined('isOPTIONS')) { define('isOPTIONS', ''); }
 
 // Подключение элементов
 
+/*
+*  Опции задаются через константу isOPTIONS
+*  в виде объекта в формате json
+*  
+*  Доступные опции:
+*  path - путь установки, например 'assets/'
+*  min - задать минимизацию файла или нет
+*/
+
 function jsSearch($path, &$time) {
 	
 	if (!file_exists($path) || !is_dir($path)) {
@@ -106,4 +115,3 @@ if ($mtime <= $time) {
 }
 
 ?>
-<script src="<?= '//' . $_SERVER['HTTP_HOST'] . '/' . str_replace([':', '/', '\\'], '/', $file) . '?' . $mtime; ?>"></script>
