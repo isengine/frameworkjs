@@ -81,7 +81,7 @@ $time = null;
 $path = __DIR__ . DS;
 $list = \is\jsSearch($path, $time);
 
-$file = ($options['path'] ? str_replace([':', '/', '\\'], DS, $options['path']) : null) . 'frameworkjs' . ($options['min'] ? '.min' : null) . '.js';
+$file = ($options['path'] ? str_replace([':', '/', '\\'], DS, $options['path']) : null) . 'isjs' . ($options['min'] ? '.min' : null) . '.js';
 $mtime = file_exists(DI . $file) ? filemtime(DI . $file) : null;
 
 if ($mtime <= $time) {
