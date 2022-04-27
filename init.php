@@ -1,7 +1,5 @@
 <?php
 
-// Рабочее пространство имен
-
 namespace is;
 
 // Базовые константы
@@ -25,54 +23,53 @@ if (!defined('isOPTIONS')) { define('isOPTIONS', ''); }
 *  min - задать минимизацию файла или нет
 */
 
-function jsSearch($path, &$time) {
-	
-	if (!file_exists($path) || !is_dir($path)) {
-		return false;
-	}
-	
-	$path = str_replace(['/', '\\'], DS, $path);
-	if (substr($path, -1) !== DS) { $path .= DS; }
-	
-	$scan = scandir($path);
-	
-	if (!is_array($scan)) {
-		return false;
-	}
-	
-	$list = [];
-	$dir = [];
-	
-	foreach ($scan as $item) {
-		//if ($item === '.' || $item === '..') {
-		if (mb_substr($item, 0, 1) === '.') {
-			continue;
-		}
-		$item = $path . $item;
-		if (is_dir($item)) {
-			$dir[] = $item;
-		} else {
-			if (mb_substr($item, -3) === '.js') {
-				$list[] = $item;
-				$mtime = filemtime($item);
-				if ($time < $mtime) {
-					$time = $mtime;
-				}
-			}
-		}
-	}
-	unset($item);
-	
-	foreach ($dir as $item) {
-		$sub = \is\jsSearch($item . DS, $time);
-		if (is_array($sub)) {
-			$list = array_merge($list, $sub);
-		}
-	}
-	unset($item);
-	
-	return $list;
-	
+function jsSearch($path, &$time)
+    {
+    if (!file_exists($path) || !is_dir($path)) {
+        return false;
+    }
+
+    $path = str_replace(['/', '\\'], DS, $path);
+    if (substr($path, -1) !== DS) { $path .= DS; }
+
+    $scan = scandir($path);
+
+    if (!is_array($scan)) {
+        return false;
+    }
+
+    $list = [];
+    $dir = [];
+
+    foreach ($scan as $item) {
+        //if ($item === '.' || $item === '..') {
+        if (mb_substr($item, 0, 1) === '.') {
+            continue;
+        }
+        $item = $path . $item;
+        if (is_dir($item)) {
+            $dir[] = $item;
+        } else {
+            if (mb_substr($item, -3) === '.js') {
+                $list[] = $item;
+                $mtime = filemtime($item);
+                if ($time < $mtime) {
+                    $time = $mtime;
+                }
+            }
+        }
+    }
+    unset($item);
+
+    foreach ($dir as $item) {
+        $sub = \is\jsSearch($item . DS, $time);
+        if (is_array($sub)) {
+            $list = array_merge($list, $sub);
+        }
+    }
+    unset($item);
+
+    return $list;
 }
 
 $options = isOPTIONS ? json_decode(isOPTIONS, true) : [];
@@ -85,33 +82,31 @@ $file = ($options['path'] ? str_replace([':', '/', '\\'], DS, $options['path']) 
 $mtime = file_exists(DI . $file) ? filemtime(DI . $file) : null;
 
 if ($mtime <= $time) {
-	$content = null;
-	$min = null;
-	foreach ($list as $item) {
-		$content .= file_get_contents($item) . ($options['min'] ? ';' : null) . "\n";
-	}
-	unset($item);
-	
-	if ($options['min']) {
-		// clear comments [//...]
-		$content = preg_replace('/([^\:\"\'])\s*?\/\/.*?($|[\r\n])/u', '$1$2', $content);
-		// clear line breaks
-		$content = preg_replace('/\r\n\s*|\r\s*|\n\s*/u', '', $content);
-		// clear comments [/*...*/]
-		$content = preg_replace('/\/\*.*?\*\//u', '', $content);
-		// clear multiple spaces and trim
-		$content = preg_replace('/\s/ui', ' ', $content);
-		$content = preg_replace('/(\s|&nbsp;)+/ui', '$1', $content);
-		$content = preg_replace('/^(\s|(&nbsp;))+/ui', '', $content);
-		$content = preg_replace('/(\s|(&nbsp;))+$/ui', '', $content);
-		$content = preg_replace('/(; )+/ui', '$1', $content);
-		// clear spaces around signs
-		$content = preg_replace('/\s*([\<\>\=\+\-\*\/\?\:\.\,\(\)\|\&\!\{\}]+)\s*/ui', '$1', $content);
-	}
-	
-	file_put_contents(DI . $file, $content);
-	$mtime = filemtime(DI . $file);
-	unset($content);
-}
+    $content = null;
+    $min = null;
+    foreach ($list as $item) {
+        $content .= file_get_contents($item) . ($options['min'] ? ';' : null) . "\n";
+    }
+    unset($item);
 
-?>
+    if ($options['min']) {
+        // clear comments [//...]
+        $content = preg_replace('/([^\:\"\'])\s*?\/\/.*?($|[\r\n])/u', '$1$2', $content);
+        // clear line breaks
+        $content = preg_replace('/\r\n\s*|\r\s*|\n\s*/u', '', $content);
+        // clear comments [/*...*/]
+        $content = preg_replace('/\/\*.*?\*\//u', '', $content);
+        // clear multiple spaces and trim
+        $content = preg_replace('/\s/ui', ' ', $content);
+        $content = preg_replace('/(\s|&nbsp;)+/ui', '$1', $content);
+        $content = preg_replace('/^(\s|(&nbsp;))+/ui', '', $content);
+        $content = preg_replace('/(\s|(&nbsp;))+$/ui', '', $content);
+        $content = preg_replace('/(; )+/ui', '$1', $content);
+        // clear spaces around signs
+        $content = preg_replace('/\s*([\<\>\=\+\-\*\/\?\:\.\,\(\)\|\&\!\{\}]+)\s*/ui', '$1', $content);
+    }
+
+    file_put_contents(DI . $file, $content);
+    $mtime = filemtime(DI . $file);
+    unset($content);
+}
