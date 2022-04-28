@@ -2,20 +2,29 @@
 
 namespace is;
 
-// Базовые константы
-
-if (!defined('isENGINE')) { define('isENGINE', microtime(true)); }
-if (!defined('DS')) { define('DS', DIRECTORY_SEPARATOR); }
-if (!defined('DP')) { define('DP', '..' . DIRECTORY_SEPARATOR); }
-if (!defined('DI')) { define('DI', realpath($_SERVER['DOCUMENT_ROOT']) . DS); }
-if (!defined('DR')) { define('DR', realpath(__DIR__ . DS . DP . DP . DP) . DS); }
-
-if (!defined('isOPTIONS')) { define('isOPTIONS', ''); }
+if (!defined('ISENGINE')) {
+    define('ISENGINE', microtime(true));
+}
+if (!defined('ISOPTIONS')) {
+    define('ISOPTIONS', '');
+}
+if (!defined('DS')) {
+    define('DS', DIRECTORY_SEPARATOR);
+}
+if (!defined('DP')) {
+    define('DP', '..' . DIRECTORY_SEPARATOR);
+}
+if (!defined('DI')) {
+    define('DI', realpath($_SERVER['DOCUMENT_ROOT']) . DS);
+}
+if (!defined('DR')) {
+    define('DR', realpath(__DIR__ . DS . DP . DP . DP) . DS);
+}
 
 // Подключение элементов
 
 /*
-*  Опции задаются через константу isOPTIONS
+*  Опции задаются через константу ISOPTIONS
 *  в виде объекта в формате json
 *  
 *  Доступные опции:
@@ -72,7 +81,7 @@ function jsSearch($path, &$time)
     return $list;
 }
 
-$options = isOPTIONS ? json_decode(isOPTIONS, true) : [];
+$options = ISOPTIONS ? json_decode(ISOPTIONS, true) : [];
 
 $time = null;
 $path = __DIR__ . DS;
